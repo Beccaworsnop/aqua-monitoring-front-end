@@ -1,6 +1,9 @@
  "use client";
  import { useState, useEffect } from 'react';
+import { fetchSensorReadings } from './client';
 
+
+ const metrics = ["Nitrite", "pH", "StaphylococcusSpp"]
 // Mock data for the ponds
 const mockPondData = {
   pond1: {
@@ -81,7 +84,7 @@ const qpcrData = [
 
 export default function AquaDashboard() {
   const [currentView, setCurrentView] = useState('dashboard');
-  const [selectedPond, setSelectedPond] = useState('pond1');
+  const [selectedPond, setSelectedPond] = useState(1);
   const [showAddPond, setShowAddPond] = useState(false);
   const [newPond, setNewPond] = useState({
     name: '',
@@ -135,21 +138,33 @@ export default function AquaDashboard() {
   );
 
   // Threat item component
-  const ThreatItem = ({ name, level, status, unit }) => (
-    <div className="flex justify-between items-center py-2">
+  const ThreatItem = ({ name }) => {
+    const [data, setData] = useState({
+      level: null
+    })
+
+    useEffect(() => {
+      const intervalId = setInterval(async () => {
+        const reading = await fetchSensorReadings({ pondId: selectedPond, pageNumber: 1, pageSize: 10, parameter: name })
+        setData({
+          level: reading[0].value.toFixed(2)
+        })
+      }, 5000); // Fetch every 5 seconds
+
+      return () => clearInterval(intervalId);
+    })
+    
+    
+    
+    return (<div className="flex justify-between items-center py-2">
       <span className="text-white opacity-80">{name}</span>
       <div className="flex items-center space-x-2">
-        <span className={`text-sm px-2 py-1 rounded ${
-          status === 'danger' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
-        }`}>
-          {status === 'danger' ? 'YES' : 'NO'}
-        </span>
         <span className="text-white text-sm">
-          {typeof level === 'number' ? `(${level} ${unit})` : `(${level})`}
+          {data.level ?? 'Loading...'}
         </span>
       </div>
-    </div>
-  );
+    </div>)
+  };
 
   // Weekly analysis item component
   const WeeklyItem = ({ temp, day, status }) => (
@@ -314,7 +329,7 @@ export default function AquaDashboard() {
                   <h3 className="text-white font-semibold">Chemical Threats</h3>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-right">level
                 <div className="text-3xl font-bold text-white">4</div>
                 <div className="text-sm text-white opacity-70">Active Threats</div>
               </div>
@@ -322,57 +337,13 @@ export default function AquaDashboard() {
 
             {/* Chemical Threats */}
             <div className="space-y-2">
-              <ThreatItem 
-                name="Ammonia" 
-                level={threatData.chemical.ammonia.level} 
-                status={threatData.chemical.ammonia.status}
-                unit={threatData.chemical.ammonia.unit}
-              />
-              <ThreatItem 
-                name="Nitrites" 
-                level={threatData.chemical.nitrites.level} 
-                status={threatData.chemical.nitrites.status}
-                unit={threatData.chemical.nitrites.unit}
-              />
-              <ThreatItem 
-                name="Pesticides" 
-                level={threatData.chemical.pesticides.level} 
-                status={threatData.chemical.pesticides.status}
-                unit={threatData.chemical.pesticides.unit}
-              />
-              <ThreatItem 
-                name="HeavyMetals" 
-                level={threatData.chemical.heavyMetals.level} 
-                status={threatData.chemical.heavyMetals.status}
-                unit={threatData.chemical.heavyMetals.unit}
-              />
-            </div>
-
-            {/* Biological Threats */}
-            <div className="mt-6 pt-4 border-t border-white/20">
-              <h4 className="text-white font-semibold mb-4">Biological Threats</h4>
-              <div className="space-y-2">
-                <ThreatItem 
-                  name="Bacteria" 
-                  level={threatData.biological.bacteria.level} 
-                  status={threatData.biological.bacteria.status}
-                />
-                <ThreatItem 
-                  name="Virus" 
-                  level={threatData.biological.virus.level} 
-                  status={threatData.biological.virus.status}
-                />
-                <ThreatItem 
-                  name="Parasites" 
-                  level={threatData.biological.parasites.level} 
-                  status={threatData.biological.parasites.status}
-                />
-                <ThreatItem 
-                  name="Fungi" 
-                  level={threatData.biological.fungi.level} 
-                  status={threatData.biological.fungi.status}
-                />
-              </div>
+              {
+                metrics.map((metric, index) => (
+                  <ThreatItem 
+                    key={index}
+                    name={metric} 
+                    />))
+              }
             </div>
 
             {/* Weekly Analysis */}
