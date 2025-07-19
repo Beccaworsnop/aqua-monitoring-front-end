@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for the API
-const API_BASE_URL = 'https://0a1296f68526.ngrok-free.app/swagger/index.html';
+const API_BASE_URL = 'https://0a1296f68526.ngrok-free.app/api';
 
 // Create axios instance
 const api = axios.create({
