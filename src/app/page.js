@@ -6,7 +6,7 @@ import { fetchSensorReadings } from './client';
  const metrics = ["Nitrite", "pH", "StaphylococcusSpp"]
 // Mock data for the ponds
 const mockPondData = {
-  pond1: {
+  1: {
     name: "Pond 1",
     currentData: {
       healthScore: 92,
@@ -28,7 +28,7 @@ const mockPondData = {
       { date: "7/11/2025", day: "Friday", healthScore: 80, bacteriaLevel: 15, temperature: 0, status: "warning" }
     ]
   },
-  pond2: {
+  2: {
     name: "Pond 2",
     currentData: {
       healthScore: 88,
@@ -239,7 +239,7 @@ export default function AquaDashboard() {
           </div>
           <div className="flex space-x-2">
             <button
-              onClick={() => setSelectedPond('pond1')}
+              onClick={() => setSelectedPond(1)}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 selectedPond === 'pond1' 
                   ? 'bg-white text-blue-600' 
@@ -249,7 +249,7 @@ export default function AquaDashboard() {
               Pond 1
             </button>
             <button
-              onClick={() => setSelectedPond('pond2')}
+              onClick={() => setSelectedPond(2)}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 selectedPond === 'pond2' 
                   ? 'bg-white text-blue-600' 
